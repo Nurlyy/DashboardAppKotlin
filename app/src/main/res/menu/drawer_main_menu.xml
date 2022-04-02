@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn = "navigation_view">
+        <item android:title="Задачи">
+            <menu>
+                <item android:title="Все задачи"
+                    android:id="@+id/all_tasks"/>
+                <item android:title="Активные"
+                    android:id="@+id/active_tasks"/>
+                <item android:title="Выполненные"
+                    android:id="@+id/done_tasks"/>
+                <item android:title="Удаленные"
+                    android:id="@+id/deleted_tasks"/>
+            </menu>
+        </item>
+        <item android:title="Настройки">
+            <menu>
+                <item android:title="Профиль"
+                    android:id="@+id/profile"/>
+                <item android:title="Подключить устройтсва"
+                    android:id="@+id/connect_devices"/>
+                <item android:title="Настройки"
+                    android:id="@+id/settings"/>
+            </menu>
+        </item>
+</menu>
