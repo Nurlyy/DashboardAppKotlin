@@ -1,4 +1,4 @@
-package com.example.drawermenugoogleauthorization
+package com.example.drawermenugoogleauthorization.SignUpIn
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

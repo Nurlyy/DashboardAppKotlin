@@ -1,11 +1,11 @@
-package com.example.drawermenugoogleauthorization
+package com.example.drawermenugoogleauthorization.SignUpIn
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import com.example.drawermenugoogleauthorization.R
 import com.example.drawermenugoogleauthorization.databinding.FragmentSignInBinding
 
 class SignInFragment(val activity: SignInActivity) : Fragment() {
