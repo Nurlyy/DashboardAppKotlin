@@ -2,6 +2,8 @@ package com.example.drawermenugoogleauthorization
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -27,11 +29,9 @@ import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import org.w3c.dom.Text
+import java.io.InputStream
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    private lateinit var launcher: ActivityResultLauncher<Intent>
-    var isImageChanged = false
-    lateinit var imageUri: String
     lateinit var mAuth : FirebaseAuth
     private lateinit var binding : ActivityMainBinding
     private lateinit var tvAccount : TextView
@@ -41,11 +41,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         mAuth = FirebaseAuth.getInstance()
-        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-            if(it.resultCode == Activity.RESULT_OK){
-//                Log.d("MyTag", "onCreate: ${it.data}")
-            }
-        }
         Log.d("MyTag", "onCreate: ${mAuth.currentUser?.photoUrl}")
         val toggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.mainToolbar.toolbar, R.string.open, R.string.close)
         binding.drawerLayout.addDrawerListener(toggle)
@@ -60,28 +55,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }else{
                 Picasso.get().load("https://pic.onlinewebfonts.com/svg/img_458488.png").into(ivAccount)
             }
-
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == RESULT_OK) {
-            val imageProfile: ImageView = findViewById(R.id.imageProfile)
-            imageProfile.setImageURI(data?.data)
-            isImageChanged = true
-            imageUri = data?.data!!.toString()
-            Log.d("MyTag", "onActivityResult: ${data.data}")
-            Log.d("MyTag", "onActivityResult: ${data.dataString}")
-        }
-    }
-
-    fun pickImageFromGallery(){
-        val intent = Intent(Intent.ACTION_PICK)
-        val saveBtn = findViewById<Button>(R.id.btnSaveChanges)
-        saveBtn.visibility = View.VISIBLE
-        intent.type = "image/*"
-        launcher.launch(intent)
+    fun updateUi(imageBitmap: Bitmap){
+        ivAccount.setImageBitmap(imageBitmap)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -97,20 +75,4 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    fun saveChangesToFirebase(username: String, user: FirebaseUser?, profImageUri: String? = mAuth.currentUser?.photoUrl.toString()){
-        val profileUpdates = userProfileChangeRequest {
-            displayName = username
-            photoUri = Uri.parse(profImageUri)
-        }
-        Log.d("MyTag", "saveChangesToFirebase: ${profImageUri}")
-
-        user!!.updateProfile(profileUpdates).addOnCompleteListener {
-            if(it.isSuccessful){
-                Toast.makeText(this, "Changes saved successfully", Toast.LENGTH_SHORT).show()
-            }
-            else{
-                Log.d("MyTag", "${it.exception}")
-            }
-        }
-    }
 }
