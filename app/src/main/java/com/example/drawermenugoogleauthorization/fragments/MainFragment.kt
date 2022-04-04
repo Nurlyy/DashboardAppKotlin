@@ -20,7 +20,7 @@ class MainFragment(val act: MainActivity) : Fragment() {
         binding.addActionButton.setOnClickListener{
             val ft = act.supportFragmentManager.beginTransaction()
             ft.replace(R.id.main_frame_container,
-                CreateUpdateTaskFragment()).commit()
+                CreateUpdateTaskFragment(act)).commit()
             ft.addToBackStack(null)
         }
         // Inflate the layout for this fragment
