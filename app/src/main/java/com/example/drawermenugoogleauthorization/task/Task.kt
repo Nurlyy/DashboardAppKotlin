@@ -5,7 +5,7 @@ import java.io.File
 import java.util.*
 
 data class Task(
-//    val taskId: String?,
+    val taskId: String? = null,
     val title:String? = null,
     val description: String? = null,
     val year: Int? = null,
@@ -15,7 +15,6 @@ data class Task(
     val minute: Int? = null,
     val notification: Boolean = false,
     val file: String? = null,
-    val isDone: Boolean = false,
-    val isDeleted: Boolean = false,
-    val isFavourite: Boolean = false,
+    var isDone: Boolean = false,
+    var isDeleted: Boolean = false,
 )

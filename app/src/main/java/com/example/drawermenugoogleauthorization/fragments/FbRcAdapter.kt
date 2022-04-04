@@ -11,7 +11,7 @@ import com.example.drawermenugoogleauthorization.R
 import com.example.drawermenugoogleauthorization.fragments.FbRcAdapter.ViewHolder
 import com.example.drawermenugoogleauthorization.task.Task
 
-class FbRcAdapter(val tasks: ArrayList<Task>, val act: MainActivity): RecyclerView.Adapter<ViewHolder>() {
+class FbRcAdapter(val tasks: ArrayList<Task>, val listener: OnItemClickListener): RecyclerView.Adapter<ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.task_recyclerview_item, parent, false)
@@ -30,7 +30,8 @@ class FbRcAdapter(val tasks: ArrayList<Task>, val act: MainActivity): RecyclerVi
         return tasks.size
     }
 
-    class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView), View.OnClickListener{
+
         var tvTitle: TextView
         var tvDesc: TextView
         var tvTime : TextView
@@ -45,12 +46,31 @@ class FbRcAdapter(val tasks: ArrayList<Task>, val act: MainActivity): RecyclerVi
             tvDate = itemView.findViewById(R.id.tvDate)
             btnDelete = itemView.findViewById(R.id.btnDeleteTask)
             btnFinish = itemView.findViewById(R.id.btnFinishTask)
-            itemView.setOnClickListener {
-                
-            }
+
+            tvDesc.setOnClickListener(this)
+            tvTitle.setOnClickListener(this)
+            btnDelete.setOnClickListener(this)
+            btnFinish.setOnClickListener(this)
         }
 
+        override fun onClick(p0: View?) {
+            val position = adapterPosition
+            if(position != RecyclerView.NO_POSITION) {
+                if(p0?.id == tvTitle.id || p0?.id == tvDesc.id){
+                    listener.onItemClick(position)
+                }
+                if (p0?.id == btnDelete.id)
+                    listener.onBtnDeleteClick(position)
+                else if(p0?.id == btnFinish.id)
+                    listener.onBtnFinishClicked(position)
+            }
 
+        }
+    }
 
+    interface OnItemClickListener{
+        fun onItemClick(position: Int)
+        fun onBtnDeleteClick(position: Int)
+        fun onBtnFinishClicked(position: Int)
     }
 }

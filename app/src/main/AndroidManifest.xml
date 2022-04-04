@@ -10,9 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DrawerMenuGoogleAuthorization">
         <activity
-            android:name=".ActivitySignUp"
-            android:exported="false" />
-        <activity
             android:name=".EmptyActivity"
             android:exported="true">
             <intent-filter>
@@ -26,7 +23,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
     </application>
 
 </manifest>

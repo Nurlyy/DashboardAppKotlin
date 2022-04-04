@@ -11,6 +11,7 @@ import androidx.core.view.GravityCompat
 import com.example.drawermenugoogleauthorization.databinding.ActivityMainBinding
 import com.example.drawermenugoogleauthorization.fragments.FragmentProfile
 import com.example.drawermenugoogleauthorization.fragments.MainFragment
+import com.example.drawermenugoogleauthorization.fragments.TodayFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -52,6 +53,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.all_tasks -> {
                 supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, MainFragment(this)).commit()
             }
+
+            R.id.today_tasks -> {
+                supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, TodayFragment(this)).commit()
+            }
+
             R.id.profile -> {
                 supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, FragmentProfile(this)).commit()
             }
