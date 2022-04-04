@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import com.example.drawermenugoogleauthorization.databinding.ActivityMainBinding
+import com.example.drawermenugoogleauthorization.fragments.DoneFragment
 import com.example.drawermenugoogleauthorization.fragments.FragmentProfile
 import com.example.drawermenugoogleauthorization.fragments.MainFragment
 import com.example.drawermenugoogleauthorization.fragments.TodayFragment
@@ -44,6 +45,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    fun setTitle(title: String){
+        binding.mainToolbar.toolbar.title = title
+    }
+
     fun updateUi(imageBitmap: Bitmap){
         ivAccount.setImageBitmap(imageBitmap)
     }
@@ -56,6 +61,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.today_tasks -> {
                 supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, TodayFragment(this)).commit()
+            }
+
+            R.id.done_tasks -> {
+                supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, DoneFragment(this)).commit()
             }
 
             R.id.profile -> {

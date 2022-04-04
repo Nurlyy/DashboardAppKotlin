@@ -38,6 +38,7 @@ class TodayFragment(val act: MainActivity) : Fragment(), FbRcAdapter.OnItemClick
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        act.setTitle("Today Tasks")
         binding = FragmentTodayBinding.inflate(inflater, container, false)
         binding.addActionButton.setOnClickListener{
             val ft = act.supportFragmentManager.beginTransaction()

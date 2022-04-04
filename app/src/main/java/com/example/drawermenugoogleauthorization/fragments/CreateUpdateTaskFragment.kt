@@ -65,6 +65,7 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        act.setTitle("Edit Task")
         binding = FragmentCreateUpdateTaskBinding.inflate(inflater, container, false)
         mAuth = FirebaseAuth.getInstance()
         mStorage = FirebaseStorage.getInstance()
