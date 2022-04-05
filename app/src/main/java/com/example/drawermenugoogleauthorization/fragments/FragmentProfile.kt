@@ -1,13 +1,10 @@
-package com.example.drawermenugoogleauthorization
+package com.example.drawermenugoogleauthorization.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -16,18 +13,16 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import androidx.core.widget.addTextChangedListener
+import com.example.drawermenugoogleauthorization.AccountHelper
+import com.example.drawermenugoogleauthorization.MainActivity
 import com.example.drawermenugoogleauthorization.databinding.FragmentProfile2Binding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import java.io.ByteArrayOutputStream
-import kotlin.math.log10
 
 class FragmentProfile(val act : MainActivity) : Fragment() {
     private lateinit var tvUsername : TextView

@@ -1,4 +1,4 @@
-package com.example.drawermenugoogleauthorization
+package com.example.drawermenugoogleauthorization.SignUpIn
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -7,8 +7,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.drawermenugoogleauthorization.MainActivity
+import com.example.drawermenugoogleauthorization.R
 import com.example.drawermenugoogleauthorization.databinding.ActivitySignInBinding
-import com.example.drawermenugoogleauthorization.databinding.FragmentSignInBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

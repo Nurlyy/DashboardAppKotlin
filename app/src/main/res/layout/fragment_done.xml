@@ -5,7 +5,7 @@
     android:background="@color/light_blue"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.MainFragment">
+    tools:context=".fragments.DoneFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -32,15 +32,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/task_recyclerview_item"/>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/addActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:src="@drawable/ic_add"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
