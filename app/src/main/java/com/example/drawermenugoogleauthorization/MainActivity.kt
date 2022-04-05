@@ -9,10 +9,7 @@ import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import com.example.drawermenugoogleauthorization.databinding.ActivityMainBinding
-import com.example.drawermenugoogleauthorization.fragments.DoneFragment
-import com.example.drawermenugoogleauthorization.fragments.FragmentProfile
-import com.example.drawermenugoogleauthorization.fragments.MainFragment
-import com.example.drawermenugoogleauthorization.fragments.TodayFragment
+import com.example.drawermenugoogleauthorization.fragments.*
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -65,6 +62,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             R.id.done_tasks -> {
                 supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, DoneFragment(this)).commit()
+            }
+
+            R.id.deleted_tasks -> {
+                supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, DelededFragment(this)).commit()
             }
 
             R.id.profile -> {
