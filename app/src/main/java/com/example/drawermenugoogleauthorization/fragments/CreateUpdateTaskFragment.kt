@@ -71,17 +71,28 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
         mStorage = FirebaseStorage.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Tasks/${mAuth.currentUser?.uid}")
 
-        if(task == null){
-            init()
-            binding.btnSaveTask.setOnClickListener {
-                onFirstSaveClicked()
-            }
-            binding.ivDelete.setOnClickListener {
-                onImageDeleteClicked()
+        if(mAuth.currentUser?.isEmailVerified == true){
+            if(task == null){
+                init()
+                binding.btnSaveTask.setOnClickListener {
+                    onFirstSaveClicked()
+                }
+                binding.ivDelete.setOnClickListener {
+                    onImageDeleteClicked()
+                }
+            }else{
+                updateClassTask()
             }
         }else{
-            updateClassTask()
+            init()
+             binding.btnPickFile.setOnClickListener {
+                 Toast.makeText(act, "You must verify your email", Toast.LENGTH_SHORT).show()
+             }
+            binding.btnSaveTask.setOnClickListener{
+                Toast.makeText(act, "You must verify your email", Toast.LENGTH_SHORT).show()
+            }
         }
+
 
 
 
