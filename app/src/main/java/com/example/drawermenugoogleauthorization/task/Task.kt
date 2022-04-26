@@ -14,6 +14,7 @@ data class Task(
     val hour: Int? = null,
     val minute: Int? = null,
     val notification: Boolean = false,
+    val notificationID: Int = 0,
     val file: String? = null,
     var isDone: Boolean = false,
     var isDeleted: Boolean = false,

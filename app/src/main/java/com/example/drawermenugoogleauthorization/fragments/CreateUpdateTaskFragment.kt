@@ -1,7 +1,12 @@
 package com.example.drawermenugoogleauthorization.fragments
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,11 +17,17 @@ import android.widget.*
 import android.text.format.DateFormat
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
+import androidx.core.view.doOnAttach
 import androidx.core.view.marginTop
 import com.example.drawermenugoogleauthorization.MainActivity
 import com.example.drawermenugoogleauthorization.R
 import com.example.drawermenugoogleauthorization.databinding.FragmentCreateUpdateTaskBinding
+import com.example.drawermenugoogleauthorization.notification.NOTIFICATION_ID
+import com.example.drawermenugoogleauthorization.notification.NotificationHelper
+import com.example.drawermenugoogleauthorization.notification.messageExtra
+import com.example.drawermenugoogleauthorization.notification.titleExtra
 import com.example.drawermenugoogleauthorization.task.Task
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -26,13 +37,15 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import java.util.*
+import kotlin.math.min
 
 class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragment() {
+    private var notificationid = 0
     private var yearInt = 0
     private var monthInt: Int = 0
     private var dayOfMonthInt: Int = 0
-    private var hour : Int = 12
-    private var minute: Int = 15
+    private var hour : Int = 0
+    private var minute : Int = 0
     private lateinit var mStorage: FirebaseStorage
     private lateinit var tvUri: TextView
     private lateinit var mAuth : FirebaseAuth
@@ -40,16 +53,13 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
     private lateinit var binding : FragmentCreateUpdateTaskBinding
     private lateinit var etName: TextView
     private lateinit var etDesc: TextView
-    private lateinit var date: CalendarView
-    private lateinit var time: TextView
+    private lateinit var date: DatePicker
+    private lateinit var time: TimePicker
     private lateinit var selectFile: Button
     private lateinit var notification: CheckBox
     private var isImageDeleteClicked = false
     private var fileUri: Uri? = null
     private var fileDownUri: String?= null
-    private var isDone: Boolean = false
-    private var isDeleted: Boolean = false
-    private lateinit var picker: MaterialTimePicker
     private val pickFile  = registerForActivityResult(
         ActivityResultContracts.GetContent(), ActivityResultCallback {
             if(it!=null) {
@@ -61,6 +71,7 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
         }
     )
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -100,12 +111,13 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun updateClassTask(){
         if(task != null){
             etName = binding.etTaskName
             etDesc = binding.etTaskDesc
-            date = binding.calendarView
-            time = binding.selectedTimeHour
+            date = binding.datePicker
+            time = binding.timePicker
             if(task.file != null){
                 fileDownUri = task.file
                 binding.linearLayoutUri.visibility = View.VISIBLE
@@ -119,19 +131,9 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
             dayOfMonthInt = task!!.dayOfMonth!!
             etName.text = task!!.title
             etDesc.text = task!!.description
-            val tempCal = Calendar.getInstance()
-            tempCal.set(yearInt, monthInt, dayOfMonthInt)
-            date.setDate(tempCal.timeInMillis, true, true)
-            date.setOnDateChangeListener { calendarView, i, i2, i3 ->
-                val calendar = Calendar.getInstance()
-                calendar.set(i, i2, i3)
-                calendarView.setDate(calendar.timeInMillis, true, true)
-                Log.d("MyTag", "Selected Date: $i3/${i2+1}/$i")
-            }
-            time.text = "$hour : $minute"
-            time.setOnClickListener {
-                showTimePicker()
-            }
+            date.init(yearInt, monthInt+1, dayOfMonthInt, DatePicker.OnDateChangedListener { datePicker, i, i2, i3 ->})
+            time.hour = hour
+            time.minute = minute
             selectFile = binding.btnPickFile
             selectFile.setOnClickListener {
                 if(task.file == null){
@@ -153,18 +155,8 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
     private fun init(){
         etName = binding.etTaskName
         etDesc = binding.etTaskDesc
-        date = binding.calendarView
-        date.setOnDateChangeListener { calView: CalendarView, year: Int, month: Int, dayOfMonth: Int ->
-            val calender: Calendar = Calendar.getInstance()
-            calender.set(year, month, dayOfMonth)
-            calView.setDate(calender.timeInMillis, true, true)
-            Log.d("MyTag", "Selected Date: $dayOfMonth/${month+1}/$year")
-        }
-        time = binding.selectedTimeHour
-        time.text = "$hour : $minute"
-        time.setOnClickListener {
-            showTimePicker()
-        }
+        date = binding.datePicker
+        time = binding.timePicker
         selectFile = binding.btnPickFile
         selectFile.setOnClickListener {
             if(fileDownUri == null){
@@ -184,20 +176,29 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun updateTask(){
         if(etName.text.isNotEmpty()){
             val taskid: String? = task?.taskId
-            val dateMillis: Long = binding.calendarView.date
-            val date: Date = Date(dateMillis)
-            yearInt = (DateFormat.format("yyyy", date) as String).toInt()
-            monthInt = (DateFormat.format("MM", date) as String).toInt()
-            dayOfMonthInt = (DateFormat.format("dd", date) as String).toInt()
+            yearInt = binding.datePicker.year
+            monthInt = binding.datePicker.month
+            dayOfMonthInt = binding.datePicker.dayOfMonth
+            hour = time.hour
+            minute = time.minute
             if(isImageDeleteClicked){
                 val pictureRef = mStorage.getReferenceFromUrl(task?.file!!)
                 pictureRef.delete()
             }
-            val task = Task(taskid, etName.text.toString(), etDesc.text.toString(), yearInt, monthInt, dayOfMonthInt, hour, minute, notification.isChecked, fileDownUri)
-            database.child(taskid.toString()).setValue(task).addOnSuccessListener {
+            notificationid = task?.notificationID!!
+            val tempcal = Calendar.getInstance()
+            tempcal.set(yearInt, monthInt, dayOfMonthInt, hour, minute)
+            if(notification.isChecked){
+                scheduleNotification(etName.text.toString(), etDesc.text.toString(), tempcal.timeInMillis, notificationid)
+            }else{
+                cancelNotification(notificationid)
+            }
+            val taskUpdated = Task(taskid, etName.text.toString(), etDesc.text.toString(), yearInt, monthInt, dayOfMonthInt, hour, minute, notification.isChecked, notificationid, fileDownUri)
+            database.child(taskid.toString()).setValue(taskUpdated).addOnSuccessListener {
                 Toast.makeText(act, "Task Saved Successfully", Toast.LENGTH_SHORT).show()
                 Log.d("MyTag", "onCreateView: Selected date: $dayOfMonthInt/$monthInt/$yearInt")
                 act.supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, MainFragment(act)).commit()
@@ -209,50 +210,35 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun onFirstSaveClicked(){
         if(etName.text.isNotEmpty()){
             val taskid: String? = database.push().key
-            getCalendarDate()
+            yearInt = binding.datePicker.year
+            monthInt = binding.datePicker.month+1
+            dayOfMonthInt = binding.datePicker.dayOfMonth
+            hour = time.hour
+            minute = time.minute
+            val tempcal = Calendar.getInstance()
+            tempcal.set(yearInt, monthInt-1, dayOfMonthInt, hour, minute)
             if(isImageDeleteClicked){
                 val pictureRef = mStorage.getReferenceFromUrl(fileDownUri!!)
                 pictureRef.delete()
             }
-            val task = Task(taskid, etName.text.toString(), etDesc.text.toString(), yearInt, monthInt, dayOfMonthInt, hour, minute, notification.isChecked, fileDownUri)
+            notificationid = createNotificationID()
+            if(notification.isChecked){
+                scheduleNotification(etName.text.toString(), etDesc.text.toString(), tempcal.timeInMillis, notificationid)
+            }
+            val task = Task(taskid, etName.text.toString(), etDesc.text.toString(), yearInt, monthInt, dayOfMonthInt, hour, minute, notification.isChecked, notificationid, fileDownUri)
             database.child(taskid.toString()).setValue(task).addOnSuccessListener {
                 Toast.makeText(act, "Task Saved Successfully", Toast.LENGTH_SHORT).show()
-                Log.d("MyTag", "onCreateView: Selected date: $dayOfMonthInt/$monthInt/$yearInt")
+                Log.d("MyTag", "onCreateView: Selected date: $dayOfMonthInt/$monthInt/$yearInt $hour:$minute")
                 act.supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, MainFragment(act)).commit()
             }.addOnFailureListener{
                 Toast.makeText(act, "Something went wrong", Toast.LENGTH_SHORT).show()
                 act.supportFragmentManager.beginTransaction().replace(R.id.main_frame_container, MainFragment(act)).commit()
                 Log.d("MyTag", "onCreateView: $it")
             }
-        }
-    }
-
-    private fun getCalendarDate(){
-        val dateMillis: Long = binding.calendarView.date
-        val date: Date = Date(dateMillis)
-        yearInt = (DateFormat.format("yyyy", date) as String).toInt()
-        monthInt = (DateFormat.format("MM", date) as String).toInt()
-        dayOfMonthInt = (DateFormat.format("dd", date) as String).toInt()
-    }
-
-
-
-    @SuppressLint("SetTextI18n")
-    private fun showTimePicker(){
-        picker = MaterialTimePicker.Builder()
-            .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setHour(hour)
-            .setMinute(minute)
-            .setTitleText("Select task time")
-            .build()
-        picker.show(act.supportFragmentManager, "nurlytan")
-        picker.addOnPositiveButtonClickListener {
-            hour = picker.hour
-            minute = picker.minute
-            time.text = "$hour : $minute"
         }
     }
 
@@ -280,6 +266,59 @@ class CreateUpdateTaskFragment(val act: MainActivity, val task: Task?) : Fragmen
         }.addOnFailureListener{
             Log.d("MyTag", "uploadFile: $it")
         }
+    }
+
+    private fun createNotificationID():Int{
+        return java.util.Random().nextInt(1000000)
+    }
+
+//    @RequiresApi(Build.VERSION_CODES.M)
+//    private fun createNotificationForTask(task: Task){
+//        if(task.notification) {
+//            val tempTime = getTimeInMillis(
+//                task.year!!,
+//                task.month!!,
+//                task.dayOfMonth!!,
+//                task.hour!!,
+//                task.minute!!
+//            )
+//            scheduleNotification(task.title!!, task.description!!, tempTime)
+//        }
+//    }
+
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun scheduleNotification(title2: String, message: String, time: Long, notificationID:Int){
+        val intent = Intent(context, NotificationHelper::class.java)
+        intent.putExtra(titleExtra, title2)
+        intent.putExtra(messageExtra, message)
+        intent.putExtra(NOTIFICATION_ID, notificationID)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationID,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            time,
+            pendingIntent
+        )
+        Log.d("MyTag", "scheduleNotification: NOTIFICATION SCHEDULED")
+    }
+    private fun cancelNotification(notificationID: Int){
+        val intent = Intent(context, NotificationHelper::class.java)
+        intent.putExtra(NOTIFICATION_ID, notificationID.toString())
+        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationID,
+            intent,
+            PendingIntent.FLAG_CANCEL_CURRENT
+        )
+        alarmManager.cancel(pendingIntent)
     }
 
 }
